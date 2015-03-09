@@ -1,8 +1,9 @@
 __author__ = 'Simon'
 from config import *
+from classes import Game
 
 clock = pygame.time.Clock()
-game = GameScreen(screen)
+game = Game(screen)
 while running:
     screen.fill(black)
     game.draw()

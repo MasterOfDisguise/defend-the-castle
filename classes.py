@@ -10,8 +10,8 @@ class Castle(pygame.sprite.Sprite):
         self.surface = self.manager.surface
         self.image = pygame.image.load("castle.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.x = 600
-        self.rect.y = 450
+        self.rect.x = width*3/4
+        self.rect.y = height*3/4
 
     def draw(self):
         self.surface.blit(self.image, self.rect)
@@ -19,10 +19,11 @@ class Castle(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
 
-    def __init__(self, manager, speed):
+    def __init__(self, manager, speed, health):
         pygame.sprite.Sprite.__init__(self)
         self.manager = manager
         self.speed = speed
+        self.health = health
         self.surface = self.manager.surface
         self.image = pygame.image.load("enemy.png").convert_alpha()
         self.rect = self.image.get_rect()
@@ -41,23 +42,32 @@ class GameScreen():
         self.manager = manager
         self.castle = Castle(self.manager)
         self.enemies = pygame.sprite.Group()
+        self.money_counter = eztext.Input(maxlength=45, color=(255, 255, 255), prompt='money: '+str(self.manager.money))
+        self.timer = 0
 
     def handle_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             for enemy in self.enemies:
                 if enemy.rect.collidepoint(x, y):
-                    enemy.kill()
+                    enemy.health -= 1
+                    if enemy.health <= 0:
+                        enemy.kill()
+                        self.manager.money += 100
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                enemy = Enemy(self, 1)
-                self.enemies.add(enemy)
+            self.manager.end_game()
 
     def draw(self):
         self.castle.draw()
         self.enemies.draw(self.surface)
 
     def update(self):
+
+        self.timer += 1
+        if self.timer >= 100:
+            enemy = Enemy(self, 1, 2)
+            self.enemies.add(enemy)
+            self.timer = 0
         for enemy in self.enemies:
             enemy.move()
 
@@ -66,26 +76,24 @@ class Game():
 
     def __init__(self, surface):
         self.surface = surface
+        self.money = int(saved_money)
         self.screen = GameScreen(self.surface, self)
-        self.money = 0
+        self.money_counter = eztext.Input(maxlength=45, color=white, prompt='money: '+str(self.money))
 
     def draw(self):
         self.screen.draw()
+        self.money_counter.draw(self.surface)
 
     def handle_events(self, event):
         self.screen.handle_events(event)
 
     def end_game(self):
-        f = open('high_scores', 'r')
-        my_money = json.load(f)
-
-        gained_money = self.money
-        my_money += gained_money
-
-        f = open('high_scores', 'w')
-        json.dump(my_money, f)
+        saved_data[0] = self.money
+        f = open('saved_data', 'w')
+        json.dump(saved_data, f)
         f.close()
         sys.exit(0)
 
     def update(self):
+        self.money_counter = eztext.Input(maxlength=45, color=white, prompt='money: '+str(self.money))
         self.screen.update()

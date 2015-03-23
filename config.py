@@ -11,5 +11,6 @@ running = 1
 black = (0, 0, 0)
 white = (255, 255, 255)
 f = open('saved_data', 'r')
-saved_data = json.load(f)
-saved_money = saved_data[0]
+json_string = f.readline()
+saved_data = json.loads(json_string)
+

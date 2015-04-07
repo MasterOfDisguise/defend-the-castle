@@ -1,1 +1,1 @@
-{"money": 4100, "upgrade_price": 400, "turret_level": 2, "life_max": 800, "damage": 2}
+{"turret_upgrade_price": 500, "life": 100, "money": 0, "life_max": 100, "damage": 1, "turret_level": 0, "damage_upgrade_price": 100, "life_upgrade_price": 100, "day": 3}
